@@ -1,16 +1,56 @@
-# memora_app
+# 🧠 Project Memora – Elaboration Release (Iteration 1)
 
-A new Flutter project.
+## 📌 Overview
 
-## Getting Started
+**Project Memora** is an AI-powered assistive mobile application designed to support individuals with memory impairments. The app enables users to set reminders, receive notifications, and will eventually include features like facial recognition and route guidance for daily support.
 
-This project is a starting point for a Flutter application.
+This iteration focuses on:
+- Designing the software architecture
+- Implementing a core, architecturally significant feature
+- Building the foundation for future iterations
 
-A few resources to get you started if this is your first Flutter project:
+---
 
-- [Lab: Write your first Flutter app](https://docs.flutter.dev/get-started/codelab)
-- [Cookbook: Useful Flutter samples](https://docs.flutter.dev/cookbook)
+## 🚀 Features Implemented (Iteration 1)
 
-For help getting started with Flutter development, view the
-[online documentation](https://docs.flutter.dev/), which offers tutorials,
-samples, guidance on mobile development, and a full API reference.
+### ✅ Reminder Creation
+- Users can input a title and time to create a new reminder
+- Reminder data is sent to a Python-based API and stored in **Firebase**
+- A confirmation is shown upon success
+
+---
+
+## 🏗️ Architecture
+
+- **Architecture Pattern**: Layered Architecture with Domain-Driven Design
+- **Reference Application Architecture**: Information System
+- **Subsystems Modeled**:
+  - Reminder Service
+  - Authentication (Planned)
+  - Facial Recognition (Planned)
+  - Database Integration
+- **Design Tools**: Visual Paradigm (Design & Interaction Models), Figma (UI Prototyping)
+
+---
+
+## 🖥️ Tech Stack
+
+| Layer         | Technology                      |
+|---------------|---------------------------------|
+| UI            | Figma (Prototype)               |
+| Backend       | Python (FastAPI or Flask)       |
+| Database      | Firebase (Firestore or Realtime DB) |
+| Version Control | Git + Bitbucket               |
+| DevOps        | Docker (optional), Git CLI      |
+
+---
+
+## 📂 Project Structure
+---
+
+## 🔧 Running the Backend (Locally)
+
+### 1. Clone the Repo
+```bash
+git clone https://bitbucket.org/your-repo/project-memora.git
+cd backend
