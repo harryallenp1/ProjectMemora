@@ -1,0 +1,2 @@
+D:/Projects/Project Memora/memora_app/android/app/.cxx/Debug/3u44n3g2/x86/CMakeFiles/edit_cache.dir
+D:/Projects/Project Memora/memora_app/android/app/.cxx/Debug/3u44n3g2/x86/CMakeFiles/rebuild_cache.dir
