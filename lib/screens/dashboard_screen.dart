@@ -1,5 +1,6 @@
 import 'dart:io';
 import 'package:flutter/material.dart';
+import 'package:path/path.dart';
 import '../models/user.dart';
 import '../models/item.dart';
 import '../services/database_service.dart';
@@ -48,7 +49,8 @@ class _DashboardScreenState extends State<DashboardScreen> {
               await Navigator.push(
                 context,
                 MaterialPageRoute(
-                  builder: (_) => AddItemScreen(user: widget.user), // ✅ Pass user
+                  builder: (_) =>
+                      AddItemScreen(user: widget.user), // ✅ Pass user
                 ),
               );
               _loadItems(); // 🔃 Refresh after adding
@@ -68,7 +70,9 @@ class _DashboardScreenState extends State<DashboardScreen> {
                     style: TextStyle(fontSize: 20, color: Colors.white),
                   ),
                   const SizedBox(height: 30),
-                  VoiceCommandWidget(), // 🎤 Real voice command interface
+                  VoiceCommandWidget(
+                    user: widget.user,
+                  ), // 🎤 Real voice command interface
                 ],
               ),
             )
