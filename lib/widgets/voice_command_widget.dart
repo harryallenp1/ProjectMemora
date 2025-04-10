@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:speech_to_text/speech_to_text.dart' as stt;
+import 'package:flutter_tts/flutter_tts.dart';
 
 class VoiceCommandWidget extends StatefulWidget {
   @override
@@ -8,6 +9,7 @@ class VoiceCommandWidget extends StatefulWidget {
 
 class _VoiceCommandWidgetState extends State<VoiceCommandWidget> {
   late stt.SpeechToText _speech;
+  final FlutterTts _tts = FlutterTts();
   bool _isListening = false;
   String _command = 'Tap mic and say something...';
 
@@ -25,6 +27,14 @@ class _VoiceCommandWidgetState extends State<VoiceCommandWidget> {
         _speech.listen(onResult: (result) {
           setState(() {
             _command = result.recognizedWords;
+
+            if (_command.toLowerCase().contains('remind')) {
+              // TTS feedback
+              _tts.speak("Got it! Opening reminder screen.");
+
+              // Optional: Navigate or trigger logic
+              // Navigator.push(context, MaterialPageRoute(builder: (_) => ReminderPage()));
+            }
           });
         });
       }
@@ -47,7 +57,7 @@ class _VoiceCommandWidgetState extends State<VoiceCommandWidget> {
         const SizedBox(height: 10),
         Text(
           _command,
-          style: const TextStyle(color: Colors.white),
+          style: TextStyle(fontSize: 18, fontWeight: FontWeight.w500),
         ),
       ],
     );
