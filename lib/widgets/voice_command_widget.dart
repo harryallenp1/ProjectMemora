@@ -1,10 +1,19 @@
 import 'package:flutter/material.dart';
 import 'package:speech_to_text/speech_to_text.dart' as stt;
 import 'package:flutter_tts/flutter_tts.dart';
+ feature/voice-fix-navigation
+import '../screens/add_item_screen.dart';
+import 'package:memora_app/models/user.dart';
+
+ main
 
 class VoiceCommandWidget extends StatefulWidget {
+  final User user;
+
+  const VoiceCommandWidget({super.key, required this.user});
+
   @override
-  _VoiceCommandWidgetState createState() => _VoiceCommandWidgetState();
+  State<VoiceCommandWidget> createState() => _VoiceCommandWidgetState();
 }
 
 class _VoiceCommandWidgetState extends State<VoiceCommandWidget> {
@@ -12,6 +21,7 @@ class _VoiceCommandWidgetState extends State<VoiceCommandWidget> {
   final FlutterTts _tts = FlutterTts();
   bool _isListening = false;
   String _command = 'Tap mic and say something...';
+  bool _hasNavigated = false;
 
   @override
   void initState() {
@@ -21,12 +31,36 @@ class _VoiceCommandWidgetState extends State<VoiceCommandWidget> {
 
   void _listen() async {
     if (!_isListening) {
-      bool available = await _speech.initialize();
+      bool available = await _speech.initialize(
+        onStatus: (status) => print('STATUS: $status'),
+        onError: (error) => print('ERROR: $error'),
+      );
+
       if (available) {
         setState(() => _isListening = true);
+        print("🎙️ Listening started...");
+
         _speech.listen(onResult: (result) {
           setState(() {
             _command = result.recognizedWords;
+ feature/voice-fix-navigation
+            print("🗣️ Heard: $_command");
+
+            if (!_hasNavigated &&
+                result.finalResult &&
+                _command.toLowerCase().contains('add')) {
+              _hasNavigated = true; // Prevent multiple navigations
+              _tts.speak("Sure! Let's add an item.");
+
+              Future.delayed(const Duration(seconds: 1), () {
+                Navigator.push(
+                  context,
+                  MaterialPageRoute(
+                    builder: (_) => AddItemScreen(user: widget.user),
+                  ),
+                );
+              });
+
 
             if (_command.toLowerCase().contains('remind')) {
               // TTS feedback
@@ -34,13 +68,17 @@ class _VoiceCommandWidgetState extends State<VoiceCommandWidget> {
 
               // Optional: Navigate or trigger logic
               // Navigator.push(context, MaterialPageRoute(builder: (_) => ReminderPage()));
+ main
             }
           });
         });
+      } else {
+        print("🚫 Speech recognition not available.");
       }
     } else {
       setState(() => _isListening = false);
       _speech.stop();
+      print("🛑 Listening stopped.");
     }
   }
 
