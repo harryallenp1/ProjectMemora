@@ -25,12 +25,6 @@
 
 ## 📲 Getting Started
 
-### 1. Clone the Repo
-
-``bash
-git clone https://github.com/harryallenp1/ProjectMemora.git
-cd ProjectMemora``
-
 **###🛠 Project Structure**
 ```
 lib/
