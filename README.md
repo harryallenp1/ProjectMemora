@@ -1,6 +1,6 @@
 <div align="center">
 
-<img src="https://readme-typing-svg.demolab.com?font=Fira+Code&size=26&duration=3000&pause=1000&color=7CFFB2&center=true&vCenter=true&width=800&lines=Welcome+to+Project+Memora!;Your+AI-powered+Memory+Assistant+📱🧠" alt="Typing SVG" />
+<img src="https://readme-typing-svg.demolab.com?font=Fira+Code&size=26&duration=3000&pause=1000&color=7CFFB2&center=true&vCenter=true&width=800&lines=Welcome+to+Project+Memora!;Your+AI+powered+Memory+Assistant+📱🧠" alt="Typing SVG" />
 
 <br><br>
 
