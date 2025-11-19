@@ -9,7 +9,7 @@
 ![Voice Commands](https://img.shields.io/badge/Voice_Commands-Active-brightgreen?logo=android)
 ![Accessibility](https://img.shields.io/badge/Accessibility-First-purple)
 
-<img src="https://readme-typing-svg.herokuapp.com?font=Fira+Code&weight=500&size=22&pause=1000&center=true&vCenter=true&width=435&lines=Voice-enabled+task+manager...;Built+for+care+and+accessibility...;Memora+remembers+what+you+can't+🧠" alt="Typing SVG" />
+<img src="https://readme-typing-svg.herokuapp.com?font=Fira+Code&weight=500&size=22&pause=1000&center=true&vCenter=true&width=435&lines=Voice-enabled+task+manager...;  Built+for+care+and+accessibility...;Memora+remembers+what+you+can't+🧠" alt="Typing SVG" />
 
 </div>
 
