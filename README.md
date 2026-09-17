@@ -74,12 +74,6 @@ Built with empathy and scalability in mind, Memora supports **text-to-speech fee
 
 ---
 
-## 🤝 Team & Acknowledgements
-
-Developed by:  
-- Harry Allen *(Project Lead, AI Integration)*  
-- Ankith Balu *(UI/UX, Backend)*  
-- Ahmed [last name] *(Testing, Reminders)*
 
 Thanks to mentors and testers who helped shape Memora into something meaningful.
 
