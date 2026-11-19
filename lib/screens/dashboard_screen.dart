@@ -6,6 +6,7 @@ import '../models/item.dart';
 import '../services/database_service.dart';
 import 'add_item_screen.dart';
 import '../widgets/voice_command_widget.dart'; // 🎙 Voice feature
+import '../features/memory/ui/memory_gallery_screen.dart'; // UC-03
 
 class DashboardScreen extends StatefulWidget {
   final User user; // 👤 Logged-in user
@@ -43,6 +44,18 @@ class _DashboardScreenState extends State<DashboardScreen> {
         title: Text('Welcome, ${widget.user.username}'),
         backgroundColor: Colors.deepPurple,
         actions: [
+          IconButton(
+            icon: const Icon(Icons.photo_library),
+            tooltip: 'My Memories',
+            onPressed: () => Navigator.push(
+              context,
+              MaterialPageRoute(
+                builder: (_) => MemoryGalleryScreen(
+                  patientId: widget.user.id.toString(),
+                ),
+              ),
+            ),
+          ),
           IconButton(
             icon: const Icon(Icons.add),
             onPressed: () async {
