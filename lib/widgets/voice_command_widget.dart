@@ -1,11 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:speech_to_text/speech_to_text.dart' as stt;
 import 'package:flutter_tts/flutter_tts.dart';
- feature/voice-fix-navigation
 import '../screens/add_item_screen.dart';
 import 'package:memora_app/models/user.dart';
-
- main
 
 class VoiceCommandWidget extends StatefulWidget {
   final User user;
@@ -43,12 +40,12 @@ class _VoiceCommandWidgetState extends State<VoiceCommandWidget> {
         _speech.listen(onResult: (result) {
           setState(() {
             _command = result.recognizedWords;
- feature/voice-fix-navigation
             print("🗣️ Heard: $_command");
 
+            final command = _command.toLowerCase();
             if (!_hasNavigated &&
                 result.finalResult &&
-                _command.toLowerCase().contains('add')) {
+                command.contains('add')) {
               _hasNavigated = true; // Prevent multiple navigations
               _tts.speak("Sure! Let's add an item.");
 
@@ -60,15 +57,9 @@ class _VoiceCommandWidgetState extends State<VoiceCommandWidget> {
                   ),
                 );
               });
-
-
-            if (_command.toLowerCase().contains('remind')) {
+            } else if (command.contains('remind')) {
               // TTS feedback
               _tts.speak("Got it! Opening reminder screen.");
-
-              // Optional: Navigate or trigger logic
-              // Navigator.push(context, MaterialPageRoute(builder: (_) => ReminderPage()));
- main
             }
           });
         });
