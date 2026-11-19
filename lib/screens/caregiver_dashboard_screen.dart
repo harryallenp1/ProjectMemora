@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import '../services/database_service.dart';
 import '../models/item.dart';
 import '../models/user.dart';
+import '../features/memory/ui/add_memory_screen.dart'; // UC-03
 
 class CaregiverDashboardScreen extends StatefulWidget {
   @override
@@ -41,6 +42,22 @@ class _CaregiverDashboardScreenState extends State<CaregiverDashboardScreen> {
         title: const Text("Caregiver Dashboard"),
         backgroundColor: Colors.deepPurple,
       ),
+      floatingActionButton: _selectedUser == null
+          ? null
+          : FloatingActionButton.extended(
+              backgroundColor: Colors.deepPurple,
+              icon: const Icon(Icons.add_a_photo),
+              label: const Text('Add Memory'),
+              onPressed: () => Navigator.push(
+                context,
+                MaterialPageRoute(
+                  builder: (_) => AddMemoryScreen(
+                    patientId: _selectedUser!.id.toString(),
+                    caregiverName: 'Caregiver',
+                  ),
+                ),
+              ),
+            ),
       body: Column(
         children: [
           const SizedBox(height: 10),
