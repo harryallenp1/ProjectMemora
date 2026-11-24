@@ -3,8 +3,10 @@ import 'package:flutter/foundation.dart';
 
 import 'application/memory_support_service.dart';
 import 'domain/i_memory_repository.dart';
+import 'domain/i_prediction_service.dart';
 import 'infrastructure/firestore_memory_repository.dart';
 import 'infrastructure/flutter_tts_speech_output.dart';
+import 'infrastructure/http_prediction_service.dart';
 import 'infrastructure/in_memory_memory_repository.dart';
 import 'ui/memory_view_model.dart';
 
@@ -15,8 +17,22 @@ import 'ui/memory_view_model.dart';
 ///   flutter run --dart-define=USE_FIREBASE=true
 /// after the Firebase project is configured (flutterfire configure).
 /// Otherwise memories are kept in memory so the use case can be demoed.
+///
+/// The ML Prediction Service (Cloud Run) is used when started with
+///   --dart-define=ML_API_URL=https://<service>.run.app
+///   --dart-define=ML_API_KEY=<key>      (if the service requires one)
+/// Without it, comfort memories are chosen by the fallback rule.
 class MemoryModule {
   static const bool useFirebase = bool.fromEnvironment('USE_FIREBASE');
+  static const String mlApiUrl = String.fromEnvironment('ML_API_URL');
+  static const String mlApiKey = String.fromEnvironment('ML_API_KEY');
+
+  static IPredictionService? _predictionService() => mlApiUrl.isEmpty
+      ? null
+      : HttpPredictionService(
+          baseUrl: mlApiUrl,
+          apiKey: mlApiKey.isEmpty ? null : mlApiKey,
+        );
 
   static MemorySupportService? _service;
 
@@ -33,6 +49,7 @@ class MemoryModule {
     _service = MemorySupportService(
       memoryRepository: repository,
       speechOutput: FlutterTtsSpeechOutput(),
+      predictionService: _predictionService(),
     );
   }
 
@@ -40,6 +57,7 @@ class MemoryModule {
       _service ??= MemorySupportService(
         memoryRepository: InMemoryMemoryRepository(),
         speechOutput: FlutterTtsSpeechOutput(),
+        predictionService: _predictionService(),
       );
 
   static MemoryViewModel createViewModel() =>

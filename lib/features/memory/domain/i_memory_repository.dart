@@ -1,4 +1,5 @@
 import 'memory.dart';
+import 'memory_reaction.dart';
 import 'mood_entry.dart';
 
 /// Domain layer – Memory Domain subsystem.
@@ -14,4 +15,11 @@ abstract class IMemoryRepository {
   Future<Memory> save(Memory memory);
 
   Future<void> saveMood(MoodEntry entry);
+
+  /// The patient's mood entries since [since], oldest first.
+  Future<List<MoodEntry>> findMoods(String patientId, {required DateTime since});
+
+  Future<void> saveReaction(MemoryReaction reaction);
+
+  Future<List<MemoryReaction>> findReactions(String patientId);
 }

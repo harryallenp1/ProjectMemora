@@ -2,6 +2,7 @@ import 'package:flutter/foundation.dart';
 
 import '../application/memory_support_service.dart';
 import '../domain/memory.dart';
+import '../domain/memory_reaction.dart';
 
 /// UI layer – Patient Screens subsystem.
 ///
@@ -62,7 +63,26 @@ class MemoryViewModel extends ChangeNotifier {
         await memoryService.recordMoodAndGetComfortMemory(patientId, mood);
     notifyListeners();
     final comfort = _comfortMemory;
-    if (comfort != null) await memoryService.narrateMemory(comfort);
+    if (comfort != null) memoryService.narrateMemory(comfort);
     return comfort;
   }
+
+  /// Saves the "Do you feel better?" answer the recommender learns from.
+  Future<void> recordReaction(String patientId, Memory memory,
+      String moodBefore, ReactionType reaction) async {
+    try {
+      await memoryService.recordReaction(
+        patientId: patientId,
+        memory: memory,
+        moodBefore: moodBefore,
+        reaction: reaction,
+      );
+    } catch (_) {
+      // Feedback is best-effort; never interrupt the patient over it.
+    }
+  }
+
+  /// Predicted difficult period: a memory to offer, or null.
+  Future<ProactiveComfort?> checkProactiveComfort(String patientId) =>
+      memoryService.checkProactiveComfort(patientId);
 }

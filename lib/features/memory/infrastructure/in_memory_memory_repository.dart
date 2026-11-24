@@ -1,5 +1,6 @@
 import '../domain/i_memory_repository.dart';
 import '../domain/memory.dart';
+import '../domain/memory_reaction.dart';
 import '../domain/mood_entry.dart';
 
 /// Infrastructure layer – Persistence subsystem.
@@ -9,6 +10,7 @@ import '../domain/mood_entry.dart';
 class InMemoryMemoryRepository implements IMemoryRepository {
   final Map<String, Memory> _memories = {};
   final List<MoodEntry> moods = [];
+  final List<MemoryReaction> reactions = [];
   int _nextId = 1;
 
   @override
@@ -29,4 +31,20 @@ class InMemoryMemoryRepository implements IMemoryRepository {
 
   @override
   Future<void> saveMood(MoodEntry entry) async => moods.add(entry);
+
+  @override
+  Future<List<MoodEntry>> findMoods(String patientId,
+          {required DateTime since}) async =>
+      moods
+          .where((m) => m.patientId == patientId && !m.timestamp.isBefore(since))
+          .toList()
+        ..sort((a, b) => a.timestamp.compareTo(b.timestamp));
+
+  @override
+  Future<void> saveReaction(MemoryReaction reaction) async =>
+      reactions.add(reaction);
+
+  @override
+  Future<List<MemoryReaction>> findReactions(String patientId) async =>
+      reactions.where((r) => r.patientId == patientId).toList();
 }

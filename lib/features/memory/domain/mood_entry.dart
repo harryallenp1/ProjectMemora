@@ -30,4 +30,13 @@ class MoodEntry {
         'mood': mood,
         'timestamp': timestamp.toIso8601String(),
       };
+
+  factory MoodEntry.fromMap(Map<String, dynamic> map, {String? id}) =>
+      MoodEntry(
+        moodEntryId: id,
+        patientId: (map['patientId'] ?? '') as String,
+        mood: (map['mood'] ?? '') as String,
+        timestamp: DateTime.tryParse((map['timestamp'] ?? '') as String) ??
+            DateTime.fromMillisecondsSinceEpoch(0),
+      );
 }
