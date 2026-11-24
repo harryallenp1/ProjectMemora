@@ -3,6 +3,7 @@ import 'dart:io';
 import 'package:flutter/material.dart';
 
 import '../domain/memory.dart';
+import '../domain/memory_reaction.dart';
 import '../memory_module.dart';
 import 'memory_view_model.dart';
 
@@ -53,7 +54,41 @@ class _MemoryGalleryScreenState extends State<MemoryGalleryScreen> {
     if (mounted) setState(() {});
   }
 
-  void onOpen(String patientId) => viewModel.loadMemories(patientId);
+  Future<void> onOpen(String patientId) async {
+    await viewModel.loadMemories(patientId);
+    // Alternate flow A1: the ML model predicts a difficult hour.
+    final offer = await viewModel.checkProactiveComfort(patientId);
+    if (!mounted || offer == null) return;
+    final accepted = await showDialog<bool>(
+      context: context,
+      builder: (_) => AlertDialog(
+        backgroundColor: Colors.grey[900],
+        title: const Text('Would you like to look at a memory?',
+            style: TextStyle(color: Colors.white, fontSize: 24)),
+        content: Text(
+          offer.memory.personName.isNotEmpty
+              ? 'Here is ${offer.memory.personName}.'
+              : offer.memory.title,
+          style: const TextStyle(color: Colors.white70, fontSize: 20),
+        ),
+        actions: [
+          TextButton(
+            child: const Text('Not now', style: TextStyle(fontSize: 18)),
+            onPressed: () => Navigator.of(context).pop(false),
+          ),
+          ElevatedButton(
+            child: const Text('Yes, show me', style: TextStyle(fontSize: 18)),
+            onPressed: () => Navigator.of(context).pop(true),
+          ),
+        ],
+      ),
+    );
+    if (accepted == true && mounted) {
+      viewModel.playStory(offer.memory);
+      await _showMemory(offer.memory, heading: 'Here is a happy memory');
+      await _askHowYouFeel(offer.memory, moodBefore: 'anxious');
+    }
+  }
 
   Future<void> onMemoryTapped(Memory memory) async {
     viewModel.playStory(memory);
@@ -65,11 +100,55 @@ class _MemoryGalleryScreenState extends State<MemoryGalleryScreen> {
     if (!mounted) return;
     if (comfort != null) {
       await _showMemory(comfort, heading: 'Here is a happy memory');
+      await _askHowYouFeel(comfort, moodBefore: mood);
     } else {
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(content: Text('Thank you for telling me you feel $mood.')),
       );
     }
+  }
+
+  /// Feedback for the recommender: did this memory help?
+  Future<void> _askHowYouFeel(Memory memory, {required String moodBefore}) async {
+    if (!mounted) return;
+    final answer = await showDialog<ReactionType>(
+      context: context,
+      builder: (_) => AlertDialog(
+        backgroundColor: Colors.grey[900],
+        title: const Text('Do you feel better?',
+            style: TextStyle(color: Colors.white, fontSize: 26)),
+        content: Wrap(
+          spacing: 8,
+          runSpacing: 8,
+          children: [
+            _reactionButton(ReactionType.better, 'Better',
+                Icons.sentiment_very_satisfied, Colors.green),
+            _reactionButton(ReactionType.same, 'The same',
+                Icons.sentiment_neutral, Colors.blueGrey),
+            _reactionButton(ReactionType.worse, 'Worse',
+                Icons.sentiment_dissatisfied, Colors.orange),
+          ],
+        ),
+      ),
+    );
+    if (answer != null) {
+      await viewModel.recordReaction(
+          widget.patientId, memory, moodBefore, answer);
+    }
+  }
+
+  Widget _reactionButton(
+      ReactionType type, String label, IconData icon, Color color) {
+    return ElevatedButton.icon(
+      style: ElevatedButton.styleFrom(
+        backgroundColor: color,
+        foregroundColor: Colors.white,
+        minimumSize: const Size(120, 56),
+      ),
+      icon: Icon(icon),
+      label: Text(label, style: const TextStyle(fontSize: 18)),
+      onPressed: () => Navigator.of(context).pop(type),
+    );
   }
 
   Future<void> _showMemory(Memory memory, {required String heading}) {

@@ -3,6 +3,7 @@ import '../services/database_service.dart';
 import '../models/item.dart';
 import '../models/user.dart';
 import '../features/memory/ui/add_memory_screen.dart'; // UC-03
+import '../features/memory/ui/caregiver_insights_screen.dart'; // UC-03 ML
 
 class CaregiverDashboardScreen extends StatefulWidget {
   @override
@@ -41,6 +42,22 @@ class _CaregiverDashboardScreenState extends State<CaregiverDashboardScreen> {
       appBar: AppBar(
         title: const Text("Caregiver Dashboard"),
         backgroundColor: Colors.deepPurple,
+        actions: [
+          if (_selectedUser != null)
+            IconButton(
+              icon: const Icon(Icons.insights),
+              tooltip: 'Patient insights',
+              onPressed: () => Navigator.push(
+                context,
+                MaterialPageRoute(
+                  builder: (_) => CaregiverInsightsScreen(
+                    patientId: _selectedUser!.id.toString(),
+                    patientName: _selectedUser!.username,
+                  ),
+                ),
+              ),
+            ),
+        ],
       ),
       floatingActionButton: _selectedUser == null
           ? null

@@ -1,7 +1,10 @@
 import 'package:flutter_test/flutter_test.dart';
 import 'package:memora_app/features/memory/application/memory_support_service.dart';
+import 'package:memora_app/features/memory/domain/i_prediction_service.dart';
 import 'package:memora_app/features/memory/domain/i_speech_output.dart';
 import 'package:memora_app/features/memory/domain/memory.dart';
+import 'package:memora_app/features/memory/domain/memory_reaction.dart';
+import 'package:memora_app/features/memory/domain/mood_entry.dart';
 import 'package:memora_app/features/memory/infrastructure/in_memory_memory_repository.dart';
 
 /// Records what would have been spoken instead of using flutter_tts.
@@ -14,6 +17,58 @@ class FakeSpeechOutput implements ISpeechOutput {
 
   @override
   Future<void> stop() async => stopCalls++;
+}
+
+/// Stands in for the Cloud Run ML API.
+class FakePredictionService implements IPredictionService {
+  List<String> ranking = [];
+  RiskPrediction risk = const RiskPrediction(risk: 0.1, isHigh: false);
+  bool fail = false;
+  int riskCalls = 0;
+  List<MemoryReaction>? lastReactions;
+
+  void _maybeFail() {
+    if (fail) throw Exception('service unavailable');
+  }
+
+  @override
+  Future<RiskPrediction> predictRisk({
+    required String patientId,
+    required List<MoodEntry> moods,
+    List<DateTime> missedRoutines = const [],
+    DateTime? at,
+  }) async {
+    riskCalls++;
+    _maybeFail();
+    return risk;
+  }
+
+  @override
+  Future<List<String>> rankMemories({
+    required String patientId,
+    required String mood,
+    required List<Memory> memories,
+    required List<MemoryReaction> reactions,
+  }) async {
+    _maybeFail();
+    lastReactions = reactions;
+    return ranking;
+  }
+
+  @override
+  Future<PatientInsights> getInsights({
+    required String patientId,
+    required List<MoodEntry> moods,
+    required List<Memory> memories,
+    required List<MemoryReaction> reactions,
+    List<DateTime> missedRoutines = const [],
+    DateTime? at,
+  }) async {
+    _maybeFail();
+    return const PatientInsights(
+        riskByHour: [], peakHour: null, upsetByTimeOfDay: [],
+        bestMemories: [], summary: []);
+  }
 }
 
 Memory memoryFor(
@@ -126,6 +181,91 @@ void main() {
     test('returns nothing when the patient has no memories', () async {
       final comfort = await service.recordMoodAndGetComfortMemory('1', 'sad');
       expect(comfort, isNull);
+    });
+  });
+
+  group('ML prediction service', () {
+    late FakePredictionService ml;
+    late MemorySupportService mlService;
+    final now = DateTime(2026, 11, 23, 16, 30);
+
+    setUp(() {
+      ml = FakePredictionService();
+      mlService = MemorySupportService(
+        memoryRepository: repository,
+        speechOutput: speech,
+        predictionService: ml,
+      );
+    });
+
+    test('comfort memory follows the recommender ranking', () async {
+      final anna = await mlService.addMemory(memoryFor('1', personName: 'Anna'));
+      final ravi = await mlService.addMemory(memoryFor('1', personName: 'Ravi'));
+      ml.ranking = [ravi.memoryId!, anna.memoryId!];
+
+      final comfort = await mlService.recordMoodAndGetComfortMemory('1', 'anxious');
+
+      expect(comfort?.personName, 'Ravi');
+    });
+
+    test('falls back to the rule when the service fails', () async {
+      await mlService.addMemory(memoryFor('1', personName: 'Anna'));
+      ml.fail = true;
+
+      final comfort = await mlService.recordMoodAndGetComfortMemory('1', 'sad');
+
+      expect(comfort?.personName, 'Anna');
+      expect(repository.moods, hasLength(1));
+    });
+
+    test('reactions are saved and sent to the recommender', () async {
+      final anna = await mlService.addMemory(memoryFor('1'));
+      await mlService.recordReaction(
+          patientId: '1', memory: anna, moodBefore: 'Anxious',
+          reaction: ReactionType.better, now: now);
+
+      await mlService.chooseComfortMemory('1', 'anxious');
+
+      expect(repository.reactions.single.moodBefore, 'anxious');
+      expect(ml.lastReactions?.single.reaction, ReactionType.better);
+    });
+
+    test('high predicted risk offers a memory, then waits before asking again',
+        () async {
+      await mlService.addMemory(memoryFor('1'));
+      ml.risk = const RiskPrediction(
+          risk: 0.7, isHigh: true, reasons: ['Late afternoon']);
+
+      final first = await mlService.checkProactiveComfort('1', now: now);
+      final second = await mlService.checkProactiveComfort('1',
+          now: now.add(const Duration(minutes: 30)));
+      final later = await mlService.checkProactiveComfort('1',
+          now: now.add(const Duration(hours: 3)));
+
+      expect(first?.memory.personName, 'Anna');
+      expect(first?.prediction.reasons, ['Late afternoon']);
+      expect(second, isNull);
+      expect(later, isNotNull);
+    });
+
+    test('low risk or no service means no proactive prompt', () async {
+      await mlService.addMemory(memoryFor('1'));
+      expect(await mlService.checkProactiveComfort('1', now: now), isNull);
+      expect(await service.checkProactiveComfort('1', now: now), isNull);
+    });
+
+    test('only the last week of moods is sent for prediction', () async {
+      await repository.saveMood(MoodEntry(
+          patientId: '1', mood: 'anxious',
+          timestamp: now.subtract(const Duration(days: 30))));
+      await repository.saveMood(MoodEntry(
+          patientId: '1', mood: 'calm',
+          timestamp: now.subtract(const Duration(days: 1))));
+
+      final recent = await repository.findMoods('1',
+          since: now.subtract(MemorySupportService.historyWindow));
+
+      expect(recent.map((m) => m.mood), ['calm']);
     });
   });
 }

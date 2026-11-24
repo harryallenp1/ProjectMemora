@@ -47,6 +47,9 @@ dependencies:
   firebase_core: ^3.6.0
   cloud_firestore: ^5.4.4
 
+  # UC-03 ML: calls the Memora ML API on Cloud Run
+  http: ^1.2.2
+
 dev_dependencies:
   flutter_test:
     sdk: flutter
