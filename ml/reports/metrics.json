@@ -1,0 +1,67 @@
+{
+  "trained_at": "2026-11-23T22:17:09",
+  "data_source": "simulated",
+  "patients": 40,
+  "mood_entries": 27377,
+  "reactions": 10849,
+  "sklearn_version": "1.9.1",
+  "risk_split": {
+    "train_days": "0-59",
+    "test_days": "60-89",
+    "train_rows": 18166,
+    "test_rows": 9211,
+    "test_distress_rate": 0.3918,
+    "note": "Time-based split: the model is tested only on days after the ones it learned from."
+  },
+  "risk_results": {
+    "baseline_patient_rate": {
+      "roc_auc": 0.6369,
+      "pr_auc": 0.4986,
+      "precision": 0.4316,
+      "recall": 0.9066,
+      "f1": 0.5848
+    },
+    "baseline_same_hour_rate": {
+      "roc_auc": 0.6538,
+      "pr_auc": 0.5447,
+      "precision": 0.4451,
+      "recall": 0.8288,
+      "f1": 0.5791
+    },
+    "logistic_regression": {
+      "roc_auc": 0.7094,
+      "pr_auc": 0.6205,
+      "precision": 0.4933,
+      "recall": 0.785,
+      "f1": 0.6059,
+      "threshold": 0.3
+    },
+    "gradient_boosting": {
+      "roc_auc": 0.7182,
+      "pr_auc": 0.6363,
+      "precision": 0.5481,
+      "recall": 0.6736,
+      "f1": 0.6044,
+      "threshold": 0.36
+    }
+  },
+  "risk_chosen_model": "gradient_boosting",
+  "recommender_eval": {
+    "metric": "expected share of comfort memories rated 'Better' in the test period",
+    "events": 3609,
+    "random": 0.4791,
+    "newest_first": 0.4856,
+    "current_rule": 0.489,
+    "thompson_sampling": 0.7238,
+    "best_possible": 0.7609,
+    "lift_vs_random_pct": 51.1
+  },
+  "recommender_priors": {
+    "family": 0.4954,
+    "spouse": 0.5757,
+    "grandchild": 0.5054,
+    "place": 0.4365,
+    "friend": 0.3823,
+    "pet": 0.4362
+  }
+}
