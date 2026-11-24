@@ -1,0 +1,6 @@
+data/
+models/
+reports/*.png
+__pycache__/
+*.pyc
+.pytest_cache/

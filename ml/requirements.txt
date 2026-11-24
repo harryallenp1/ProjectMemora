@@ -1,0 +1,8 @@
+# Pinned so the saved model loads with the same scikit-learn it was trained with.
+scikit-learn==1.9.1
+numpy==2.5.3
+pandas==3.0.5
+joblib==1.6.0
+fastapi==0.165.0
+uvicorn==0.54.0
+pydantic==2.13.5
